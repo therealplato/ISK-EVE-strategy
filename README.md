@@ -1,4 +1,8 @@
-ISK-EVE-strategy
-================
+eve-risk
+========
 
-ISK: An unofficial EVE Online strategy game
+EVE Online hex grid strategy game
+
+This game is played on a hex grid. Players place capsuleer troops on systems and
+fight to capture adjacent systems.
+

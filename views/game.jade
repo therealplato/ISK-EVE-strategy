@@ -7,27 +7,40 @@ head
   script(type='text/javascript', src='/js/Sexy.js')
   script(type='text/javascript', src='/js/game.js')
   style
+    li {list-style-type: none; }
     html, body { margin:0; padding:0; }
     body{ overflow: hidden; }
-    #dice input { width: 20% }
-    #dice label { width: 80% }
+    #diceAtk, #diceAtkResults{ float:left; width:50%;}
+    #diceDef, #diceDefResults{ float:left; width:50%;}
+    #dice input { width: 20%; text-align: center;}
+    #dice label { width: 80%; text-align: center;}
     .f_left{ float:left}
     .f_right{ float:right}
-    .hidden{ display: none };
-    .clear{ clear: both };
+    .hidden{ display: none }
+    .clear{ clear: both }
+    .p1 {
+      background-color: #AACCFF; 
+      fill: #AACCFF; 
+    }
+    .p2 {
+      background-color: #FFCCAA; 
+      fill: #FFCCAA;
+    }
     #container{
       position:relative;
     }
     #map{
       width:80%;
+      height:100%;
       float:left;
     }
     #controls{
       width:20%;
+      height:100%;
       float: right;
     }
     #startButton{ 
-      position:absolute; 
+      position:fixed; 
       top:60%; 
       right:30%;
       width: 10em;
@@ -46,30 +59,32 @@ body
     #controls
       input#startButton(type='button', value='Start Game')
       input#doneAttackingButton.hidden(type='button', value='Done Attacking')
+      input#abortAttackButton.hidden(type='button', value='Abort Attack')
       #dice.hidden
-        #diceAtk
+        #diceAtk.p1
           input#atk_d3.f_left(type='radio', name='atk_DiceCt', value='3')
           label#atk_d3l.f_right(for='atk_d3') 3
           .clear
           input#atk_d2.f_left(type='radio', name='atk_DiceCt', value='2')
-          label#atk_d2l.f_right(for='atk_d3') 2
+          label#atk_d2l.f_right(for='atk_d2') 2
           .clear
           input#atk_d1.f_left(type='radio', name='atk_DiceCt', value='1')
-          label#atk_d1l.f_right(for='atk_d3') 1
+          label#atk_d1l.f_right(for='atk_d1') 1
           .clear
-        #diceDef
+        #diceDef.p2
           label#def_d3l.f_left(for='def_d3') 3
           input#def_d3.f_right(type='radio', name='def_DiceCt', value='3')
           .clear
-          label#def_d2l.f_left(for='def_d3') 2
+          label#def_d2l.f_left(for='def_d2') 2
           input#def_d2.f_right(type='radio', name='def_DiceCt', value='2')
           .clear
-          label#def_d1l.f_left(for='def_d3') 1
+          label#def_d1l.f_left(for='def_d1') 1
           input#def_d1.f_right(type='radio', name='def_DiceCt', value='1')
           .clear
+        .clear
+      input#rollDice.hidden(type='button', value = 'Attack!')
       #diceResults
-        #diceResultsAtk
-          
-        #diceResultsDef
-    .clear
-    #messages
+        #diceAtkResults
+        #diceDefResults
+        .clear
+      #messages

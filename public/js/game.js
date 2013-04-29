@@ -16,7 +16,6 @@ var ISK = {
   turn: 0, // 0 = staging,  1 = p1 turn 1,  2 = p2 turn 1...
   nP: 2, // number of players
   activeP: 0, // 0 = staging,  1 = p1's turn, 2 = p2's turn
-//  turnPhase: '',  // "deploy", "attack", "checkGameOver", "fortify"
   toDeployCount: 0, // units to deploy this turn
   map: [
     {
@@ -26,10 +25,22 @@ var ISK = {
       cId:'def',
       owner: 1, // P1
       unitCount: 1,
-      security: 0.5,
-      p:6,
-      q:0,
+      security: 0.3,
+      p:-3,
+      q:6,
       outGates:['123','456'],
+    },
+    {
+      sName:'Unertek',
+      sId:'123',
+      cName:'Eldulf',
+      cId:'def',
+      owner: 2, // P1
+      unitCount: 1,
+      security: 0.3,
+      p:0,
+      q:6,
+      outGates:['abc','456'],
     },
   ],
   handleHexClicked: function(){},
@@ -45,6 +56,7 @@ function ISKInit(){
     .attr("width", ISK.w)
     .attr("height", ISK.h);
 
+  /*
   ISK.svg.append("rect")
     .attr("width", ISK.w)
     .attr("height", ISK.h)
@@ -52,6 +64,7 @@ function ISKInit(){
     .attr("y", 0)
     .attr('stroke', 'none')
     .attr('fill', 'rgba(0,0,0,0.7)');
+  */
   
   createNewState(function(err){
     if(err){ console.log(err); return false };
@@ -106,39 +119,46 @@ function update(){
   sHexes
   .enter()
     .append('path')
-      .attr('class',function(d){
-        if(d.owner == 1){
-          return 'hex p1system';
-        } else if (d.owner == 2){
-          return 'hex p2system';
-        } else { 
-          return 'hex';
-        }
-      })
+      .attr('class', 'hex')
       .attr('d',function(d){ 
         return Sexy.hex2path(d.localX, d.localY, ISK.r); //SVG path string
-      })
-      .attr('fill',function(d){
-        return 'rgba(0,255,50,'+d.security+')'; 
       })
       .on('click', function(d){
         ISK.handleHexClicked(d);
       });
 
+  sHexes
+    .classed('p1', function(d){
+      if(d.owner == 1){
+        return true;
+      } else { 
+        return false;
+      }
+    })
+    .classed('p2', function(d){
+      if(d.owner == 2){
+        return true;
+      } else { 
+        return false;
+      }
+    });
+
   sText
   .enter()
     .append('text')
+    .attr('class', 'text')
     .attr('x', function(d){
       return d.localX;
     })
     .attr('y', function(d){
       return d.localY;
     })
+    .on('click', ISK.handleHexClicked);
+  sText
     .text(function(d){
       return d.unitCount;
-    })
+    });
         
-      //.on('click', function(d){d.clicked(function(){update()})});
 
   sHexes.attr('stroke',function(d){
     if(d.selected){return 'black'} else {return 'none'}
@@ -201,9 +221,10 @@ ISK.stateList = {
   },
   p2a: function(){
     $('#doneAttackingButton').show();
-    $('#doneAttackingButton').unbind('click');
+    $('#doneAttackingButton').unbind('click', endAttackPhase);
     $('#doneAttackingButton').click(endAttackPhase);
     function endAttackPhase(){
+      $('#doneAttackingButton').hide();
       ISK.goState('p3a');
     };
 
@@ -223,13 +244,15 @@ ISK.stateList = {
   },
   p2b: function(){
     $('#abortAttackButton').show();
-    $('#abortAttackButton').val('Abort Attack');
+    $('#abortAttackButton').unbind('click',resetAttack);
     $('#abortAttackButton').click(resetAttack);
     function resetAttack(){
+      $('#abortAttackButton').hide();
       ISK.goState('p2a');
     };
 
     function selectAttackTo(system){
+      $('#abortAttackButton').hide();
       if(system.owner == ISK.activeP){
         ISK.goState('p2b'); // can't attack self
       } else {
@@ -257,12 +280,13 @@ ISK.stateList = {
     // Attack from and to have both been selected
     // Players select dice count and attacker attacks
     $('#dice').show();
-    $('#diceAtk > input').removeAttr('disabled'); 
-    $('#diceDef > input').removeAttr('disabled'); 
     var atkP = ISK.attackFrom.owner;
     var defP = ISK.attackTo.owner;
     var atkMax = Math.min(3, (ISK.attackFrom.unitCount -1)); // max usable attacker dice
-    var defMax = Math.min(2, (ISK.attackFrom.unitCount)); // max usable defender dice
+    var defMax = Math.min(2, (ISK.attackTo.unitCount)); // max usable defender dice
+
+    $('#diceAtk > input').removeAttr('disabled'); 
+    $('#diceDef > input').removeAttr('disabled'); 
     switch(atkMax){
       case 3: $('#atk_d3').attr('checked', 'checked');   break;
       case 2: $('#atk_d3').attr('disabled', 'disabled'); 
@@ -273,7 +297,7 @@ ISK.stateList = {
       default: break;
     };
     switch(defMax){
-      case 3:               $('#def_d3').attr('checked', 'checked'); break;
+      case 3: $('#def_d3').attr('checked', 'checked'); break;
       case 2: $('#diceDef > input').removeAttr('disabled');
               $('#def_d2').attr('checked', 'checked');
               $('#def_d3').attr('disabled', 'disabled'); break;
@@ -283,9 +307,10 @@ ISK.stateList = {
               $('#def_d2').attr('disabled', 'disabled'); break;
       default: break;
     };
+
     function rollDice(){
-      atkCt = $('input[@name=atk_DiceCt]:checked').val();
-      defCt = $('input[@name=def_DiceCt]:checked').val();
+      atkCt = $('input[name=atk_DiceCt]:checked').val();
+      defCt = $('input[name=def_DiceCt]:checked').val();
       ISK.atkDice = [];
       ISK.defDice = [];
       for(var i=0; i<atkCt; i++){
@@ -303,8 +328,8 @@ ISK.stateList = {
       while( ISK.atkDice.length > 0 && ISK.defDice.length > 0 ){
         var a = ISK.atkDice.pop(); //highest remaining die
         var b = ISK.defDice.pop(); //highest remaining die
-        $('#diceResultsAtk').append($('<li></li>').text(a));
-        $('#diceResultsDef').append($('<li></li>').text(b));
+        $('#diceAtkResults').append($('<li></li>').text(a));
+        $('#diceDefResults').append($('<li></li>').text(b));
         if( a > b ){  // aggressor higher
           ISK.attackTo.unitCount -= 1;
         } else { // tie or defender higher
@@ -315,8 +340,8 @@ ISK.stateList = {
       // Draw any extra dice
         var a = ISK.atkDice.pop(); //highest remaining die
         var b = ISK.defDice.pop(); //highest remaining die
-        if(a) { $('#diceResultsAtk').append($('<li></li>').text(a)); }
-        if(b) { $('#diceResultsDef').append($('<li></li>').text(b)); }
+        if(a) { $('#diceAtkResults').append($('<li></li>').text(a)); }
+        if(b) { $('#diceDefResults').append($('<li></li>').text(b)); }
       }
       // This attack complete
       if(ISK.attackTo.unitCount <= 0 ){ // Conquered
@@ -332,8 +357,9 @@ ISK.stateList = {
           while(true){
             var n = window.prompt('Invade with how many units? ( '+low+' .. '+hi+' )');
             if((n >= low) && (n <= hi)){
-              ISK.attackTo.unitCount += n;
-              ISK.attackFrom.unitCount -= n;
+              ISK.attackTo.unitCount += +n;
+              ISK.attackFrom.unitCount -= +n;
+              break;
             } else {
               continue;
             };
@@ -355,7 +381,7 @@ ISK.stateList = {
   },
   EOT: function(){
     ISK.turn += 1;
-    ISK.activeP = (ISK.activeP + 1) % ISK.nP; // increment active player
+    ISK.activeP = ((ISK.turn - 1) % ISK.nP) + 1; // increment active player
     ISK.goState('p2a');
   },
 };
@@ -363,4 +389,22 @@ ISK.stateList = {
 ISK.pushMsg = function(msg){
   var msg = $('<p></p>').text(msg);
   $('#messages').prepend(msg);
+};
+
+function sec2rgb(sec){
+  sec = Math.floor(+sec*10);
+  switch(sec){
+    case 0: return '#F00000';
+    case 1: return '#D73000';
+    case 2: return '#F04800';
+    case 3: return '#F06000';
+    case 4: return '#D77700';
+    case 5: return '#EFEF00';
+    case 6: return '#8FEF2F';
+    case 7: return '#00F000';
+    case 8: return '#00EF47';
+    case 9: return '#48F0C0';
+    case 10: return '#2FEFEF';
+    default: return '#FFFFFF';
+  };
 };

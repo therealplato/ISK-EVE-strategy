@@ -1,0 +1,63 @@
+!!!
+html
+head
+  script(type='text/javascript', src='/js/jquery-1.9.1.min.js')
+  script(type='text/javascript', src='/js/d3.v3.min.js')
+  script(type='text/javascript', src='/js/async.js')
+  script(type='text/javascript', src='/js/Sexy.js')
+  script(type='text/javascript', src='/js/editor.js')
+  style
+    li {list-style-type: none; }
+    html, body { margin:0; padding:0; }
+    body{ overflow: hidden; }
+    .f_left{ float:left}
+    .f_right{ float:right}
+    .hidden{ display: none }
+    .clear{ clear: both }
+    .p1 {
+      background-color: #AACCFF; 
+      fill: #AACCFF; 
+    }
+    .p2 {
+      background-color: #FFCCAA; 
+      fill: #FFCCAA;
+    }
+    #container{
+      position:relative;
+    }
+    #map{
+      width:80%;
+      height:100%;
+      float:left;
+    }
+    #controls{
+      width:20%;
+      height:100%;
+      float: right;
+    }
+body
+  input#gameId(type='hidden', value=locals.gameId)
+  #container
+    #map
+    #controls
+      #mode
+        input#view(type="button")
+        input#place(type="button")
+        input#move(type="button")
+      #state
+        #stateName 
+        #solarRystem
+          #ssName
+          #ssDetails
+            input#ssP.hidden(name='p1')
+            input#ssQ.hidden(name='q1')
+            ul#ssOutGates
+            #ssConstel
+        input#editSS(type="button")
+        #link
+          h3#linkTitle Link
+          #linkFrom
+          #linkTo
+          input#linkConfirm(type="button")
+      #messages
+      #output

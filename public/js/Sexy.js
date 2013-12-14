@@ -163,8 +163,8 @@ Sexy.hex2path = function(x,y,r){     //x,y center, r radius
   var s = 0.5*Math.sqrt(3)*r; //r' short radius
   var t = 0.5*r;              //half of r
   var z =                     //xy coordinates of the six vertices 
-   [[x  ,y+r], [x+s,y+t], [x+s,y-t],  //clockwise 12'ck 2'ck 4'ck...
-    [x  ,y-r], [x-s,y-t], [x-s,y+t]];
+   [[x  ,y+r], [x+s,y+t], [x+s,y-t],  // clockwise 12'ck 2'ck 4'ck...
+    [x  ,y-r], [x-s,y-t], [x-s,y+t]]; // ...6'ck 8'ck 10'ck
   var path="";
   path+=("M"+z[0][0]+" "+z[0][1]+" ");   // move pen to...
   for(i=1;i<6;i++){
